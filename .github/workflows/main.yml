@@ -1,0 +1,64 @@
+name: Deploy Laravel Application
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up PHP
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1' # Adjust PHP version as needed
+          extensions: mbstring, exif, bcmath, gd
+          tools: composer
+
+      # Install Composer dependencies
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      # Set up the .env file (You may use GitHub secrets to manage sensitive data)
+      - name: Setup environment file
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+        env:
+          APP_ENV: production
+          APP_KEY: ${{ secrets.APP_KEY }}
+
+      # Cache Laravel configurations and routes
+      - name: Cache configurations and routes
+        run: |
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+      # Run migrations (optional if you need to update the database)
+      - name: Run database migrations
+        run: php artisan migrate --force
+
+      # Deploy to the server
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v0.1.2
+        with:
+          host: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          key: ${{ secrets.FTP_PASSWORD }}
+          script: |
+            cd /var/www/your-laravel-app # Navigate to your app directory
+            git pull origin main
+            composer install --no-interaction --prefer-dist --optimize-autoloader
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan queue:restart # Optional: Restart queues if using queues
