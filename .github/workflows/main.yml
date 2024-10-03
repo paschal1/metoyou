@@ -12,7 +12,7 @@ jobs:
     steps:
       # Checkout the repository
       - name: Checkout repository
-        uses: actions/checkout@latest
+        uses: actions/checkout@v4.2.0
 
       # Set up PHP
       - name: Setup PHP
