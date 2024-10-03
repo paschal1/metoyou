@@ -23,8 +23,8 @@ jobs:
           tools: composer
 
       # Install Composer dependencies
-      - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      - name: update Composer dependencies
+        run: composer update --no-interaction --prefer-dist --optimize-autoloader
 
       # Set up the .env file (You may use GitHub secrets to manage sensitive data)
       - name: Setup environment file
