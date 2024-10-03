@@ -3,7 +3,7 @@ name: Deploy Laravel Application
 on:
   push:
     branches:
-      - main
+      - starite
 
 jobs:
   deploy:
@@ -55,7 +55,7 @@ jobs:
           key: ${{ secrets.FTP_PASSWORD }}
           script: |
             cd /var/www/your-laravel-app # Navigate to your app directory
-            git pull origin main
+            git pull origin starite
             composer install --no-interaction --prefer-dist --optimize-autoloader
             php artisan migrate --force
             php artisan config:cache
